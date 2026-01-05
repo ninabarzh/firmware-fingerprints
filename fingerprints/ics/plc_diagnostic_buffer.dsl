@@ -1,0 +1,26 @@
+FINGERPRINT "siemens_s7_diag_buffer_unauth"
+
+VENDOR "Siemens"
+PRODUCT "S7-300 / S7-400"
+FIRMWARE "<= 3.2.6"
+
+VULNERABILITY "Unauthenticated diagnostic buffer access"
+CWE "CWE-306"
+
+PROTOCOL "S7COMM"
+PORT 102
+
+DETECT {
+    S7_SETUP_COMM
+    S7_READ_SZL ID=0x0011 INDEX=0x0000
+}
+
+INDICATOR {
+    RESPONSE_CONTAINS "Diagnostic buffer"
+}
+
+IMPACT {
+    INFORMATION_DISCLOSURE
+}
+
+CONFIDENCE "high"
