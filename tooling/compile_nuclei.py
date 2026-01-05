@@ -24,15 +24,17 @@ def compile_ot(fp: dict, metadata: dict | None = None):
     if isinstance(detect_steps, str):
         detect_steps = detect_steps.splitlines()
 
-    # Remove unsafe steps if any, keeping comments intact
+    # Remove unsafe steps, but preserve inline comments
     if metadata and "unsafe_steps" in metadata:
         detect_steps = [
             s for s in detect_steps
             if s.split('#')[0].strip() not in metadata["unsafe_steps"]
         ]
 
-    # Infer protocol from first step
-    proto = detect_steps[0].split()[0].upper() if detect_steps else "TCP"
+    # Determine protocol (explicit PROTOCOL block preferred)
+    proto = fp.get("PROTOCOL", "").upper()
+    if not proto and detect_steps:
+        proto = detect_steps[0].split()[0].upper()  # fallback
 
     # Default ports per protocol
     default_ports = {
@@ -59,13 +61,13 @@ def compile_ot(fp: dict, metadata: dict | None = None):
 def compile_fingerprint(fp: dict, metadata: dict | None = None):
     """
     Dispatcher for OT/ICS fingerprints.
-    Only supports known OT/ICS protocols.
+    Supports known OT/ICS protocols.
     """
-    # Prefer explicit PROTOCOL block from DSL
+    # Use explicit PROTOCOL first
     proto = fp.get("PROTOCOL", "").upper()
 
+    # Fallback: infer from first DETECT step if PROTOCOL missing
     if not proto:
-        # fallback: infer from first DETECT token
         detect_steps = fp.get("DETECT", [])
         if isinstance(detect_steps, str):
             detect_steps = detect_steps.splitlines()
@@ -82,19 +84,18 @@ def compile_fingerprint(fp: dict, metadata: dict | None = None):
 if __name__ == "__main__":
     import sys
 
-    # Path to the DSL file
     path = Path(sys.argv[1])
 
-    # Parse DSL into dict
+    # Parse the DSL into a dictionary
     fp = parse_dsl(path)
 
-    # Validate DSL, gather metadata about unsafe steps
+    # Validate DSL, get metadata about unsafe steps
     meta = validate(path, ci_mode=False)
 
-    # Compile the fingerprint into scanner-ready JSON
+    # Compile fingerprint into scanner-ready JSON
     compiled = compile_fingerprint(fp, metadata=meta)
 
-    # Write output to file under output/nuclei/<FINGERPRINT>.json
+    # Write output to output/nuclei/<FINGERPRINT>.json
     out_file = OUTPUT_DIR / f"{fp['FINGERPRINT']}.json"
     with open(out_file, "w") as f:
         json.dump(compiled, f, indent=2)
