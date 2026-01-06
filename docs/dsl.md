@@ -56,3 +56,12 @@ DETECT {
 2. Validate using `validate_dsl.py`.
 3. Compile to canonical JSON using `compile_json.py`.
 4. Compile for scanner ingestion using `compile_nuclei.py`.
+
+## Resources
+
+### References / Tools
+
+* [dsl_parser.py](../tooling/dsl_parser.py) / [validate_dsl.py](../tooling/validate_dsl.py ) – scripts for parsing and validation in this repo.
+* JSON intermediate format [compile_json.py](../tooling/compile_json.py) – useful for programmatic checks.
+* Scanner integration examples – via [compile_nuclei.py](../tooling/compile_nuclei.py) for Modbus, S7, OPC UA, DNP3.
+
