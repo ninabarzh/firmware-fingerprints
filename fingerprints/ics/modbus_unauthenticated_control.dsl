@@ -13,6 +13,7 @@ DETECT {
     MODBUS EXPECT response VALID
 
     MODBUS FUNCTION 0x06
+    SAFE false           # This marks the step as unsafe
     MODBUS REGISTER 40001
     MODBUS VALUE 0x0001
     MODBUS EXPECT response ACCEPTED
